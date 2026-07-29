@@ -217,18 +217,3 @@ GIWA connect / wallet / Flashblocks docs: https://docs.giwa.io
   mutually-exclusive (neg-risk) settlement, and parlay-style combo positions that stake across
   several markets in one bet.
 
----
-
-## 9. Deployment (GIWA Sepolia, chain id 91342)
-
-`solc 0.8.35`, EVM `osaka`, optimizer 200. The protocol suite is source-verified on
-`sepolia-explorer.giwa.io` — click an address for the source. These are the addresses the
-live beta runs on today.
-
-| Protocol contract | Address | Source |
-|---|---|---|
-| GiwaExchange | [`0x9f2a5c24…ad77c8`](https://sepolia-explorer.giwa.io/address/0x9f2a5c24e61e9be6243ec9951a78ea949ead77c8) | ✅ verified |
-| GiwaMarketRegistry | [`0xd9e14c71…b47172`](https://sepolia-explorer.giwa.io/address/0xd9e14c71cf7602b284747d172e3b3a3125b47172) | ✅ verified |
-| GiwaBinaryEngine | [`0x47aa4996…0a59e3`](https://sepolia-explorer.giwa.io/address/0x47aa49969f44a6eeb352be7585e31cacf90a59e3) | ✅ verified |
-
-Collateral (testnet only): gUSDC [`0x96aea16b…bad2f7`](https://sepolia-explorer.giwa.io/address/0x96aea16b9dadcce2052771375383c6a2cebad2f7) — a mock stand-in, not a protocol contract; mainnet integrates canonical USDC.

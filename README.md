@@ -1,4 +1,4 @@
-# Kkachival — Technical Architecture & Execution
+# Kkachival Technical Architecture
 
 Binary prediction market on **GIWA** (OP-Stack L2). **Hybrid order book**: matching is
 off-chain (price-time priority); custody, collateral, and settlement are on-chain.
@@ -164,16 +164,25 @@ it is replaced by canonical USDC on mainnet.
 
 ---
 
-## 7. Roadmap
+## 7. What's next
 
-- **Mainnet hardening gate** — external real USDC (not the mock), `DEFAULT_ADMIN` moved to
-  a multisig, treasury fee recipient, a non-zero challenge period, and verified role
-  revokes. (On-chain challenge-period finalize, payout-cap / `finalized`-gated redeem,
-  zero-fill rejection and the engine maintenance pause are already in the contract build.)
-- **Horizontal settlement** — market-sharded multiple operator EOAs for parallel,
-  independent nonce streams under load.
-- **Multi-outcome & NegRisk** — categorical / bucketed markets and capital-efficient
-  mutually-exclusive (neg-risk) settlement; taxonomy specified, deferred to a later epic.
+Not a dated roadmap — the work we plan to build, ordered by what unblocks real-money use first.
+
+- **Mainnet hardening** — external real USDC (not the mock gUSDC), `DEFAULT_ADMIN` moved to
+  a multisig, treasury fee recipient, a non-zero challenge period, verified role revokes.
+  (Challenge-period finalize, payout cap, `finalized`-gated redeem, zero-fill rejection and
+  the engine maintenance pause are already in the contract build.)
+- **Canonical USDC over GIWA's bridge** — collateral moves from the testnet mock to real
+  USDC bridged onto the L2 through GIWA's canonical bridge, so balances are backed by bridged
+  mainnet USDC rather than an open-mint stand-in.
+- **Gasless onboarding** — a paymaster / permit-relay path so a new user can approve and
+  trade without first holding native gas, removing the first-trade friction.
+- **Horizontal settlement** — market-sharded operator EOAs with independent nonce streams,
+  so settlement throughput scales with load instead of serializing behind one signer.
+- **Multi-outcome, neg-risk & combo bets** — categorical / bucketed markets, capital-efficient
+  mutually-exclusive (neg-risk) settlement, and parlay-style combo positions that stake across
+  several markets in one bet; taxonomy specified.
+
 
 ---
 

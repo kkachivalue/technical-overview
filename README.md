@@ -25,7 +25,7 @@ immutable, explorer-verified protocol contracts.
 | Step | Transaction |
 |---|---|
 | Create market | [`0x9aa56655…b82427a2`](https://sepolia-explorer.giwa.io/tx/0x9aa56655812f08419545b542735adbf1d813528c84bea8fb43ec7d24b82427a2) (`createMarket`) |
-| Open market | [`0xe7d190ed…5eb345a4`](https://sepolia-explorer.giwa.io/tx/0xe7d190edbf18bbd9e7b8f0eab138f8306b35c6c (`openMarket`) |
+| Open market | [`0xe7d190ed…5eb345a4`](https://sepolia-explorer.giwa.io/tx/0xe7d190edbf18bbd9e7b8f0eab138f8306b35c6c893541f5fd083a5a45eb345a4) (`openMarket`) |
 | Settle trades | [`0xb7af3565…694dec20d`](https://sepolia-explorer.giwa.io/tx/0xb7af3565e17bbb2f112a0ba8275dee8b8eed2f53515864074c9c6bf694dec20d) (`settleComplementarySignedBatch`) |
 
 **Testnet scope & production** — the beta runs operator-settled binary markets: off-chain
@@ -71,9 +71,9 @@ fill→settle window.
 | Contract | Responsibility |
 |---|---|
 | **GiwaMarketRegistry** | Market lifecycle (create → open → resolve → finalize); `finalizeCondition` gated by a configurable per-market challenge period (`marketResolvedAt` + `challengePeriod`); `OPERATOR`/`RESOLVER` roles |
-| **GiwaBinaryEngine** | CTF-style ERC-1155 outcome tokens; `split`/`merge`/`redeem`; per-market collateral backing ld; payout-numerator cap and a `finalized` gate on `redeem`; rejects zero-collateral fills; blocks mint/transfer into aresolved market; operator-triggered maintenance pause for incident response |
-| **GiwaExchange** | EIP-712 signed orders, operator-settled — single (`settleSigned`, `settleComplementarySigned`, `gned`) and batched (`settleSignedBatch`, `settleComplementarySignedBatch`) for settlement throughput under a rate-limitednode; EIP-1271 smart-wallet signatures; per-market taker-fee cap with maker/taker discount |
-| **GiwaUSDC** | Collateral token — a testnet mock stand-in, not a protocol contract; mainnet integrates canonical US
+| **GiwaBinaryEngine** | CTF-style ERC-1155 outcome tokens; `split`/`merge`/`redeem`; per-market collateral backing ledger + mint-solvency guard; payout-numerator cap and a `finalized` gate on `redeem`; rejects zero-collateral fills; blocks mint/transfer into a resolved market; operator-triggered maintenance pause for incident response |
+| **GiwaExchange** | EIP-712 signed orders, operator-settled — single (`settleSigned`, `settleComplementarySigned`, `settleComplementaryMergeSigned`) and batched (`settleSignedBatch`, `settleComplementarySignedBatch`) for settlement throughput under a rate-limited node; EIP-1271 smart-wallet signatures; per-market taker-fee cap with maker/taker discount |
+| **GiwaUSDC** | Collateral token — a testnet mock stand-in, not a protocol contract; mainnet integrates canonical USDC |
 
 - `DEFAULT_ADMIN` / `OPERATOR` (settle, create) / `RESOLVER` (report payouts) are distinct
   roles; the deployer's operator/resolver roles are revoked at deploy time.
@@ -127,14 +127,14 @@ Threats and on-chain / protocol mitigations:
 
 | Threat | Mitigation |
 |---|---|
-| Operator drains funds | Operator never custodies; funds live in the engine/CTF; `settleSigned` only moves value bets; role-separated keys |
+| Operator drains funds | Operator never custodies; funds live in the engine/CTF; `settleSigned` only moves value between the two signed parties; role-separated keys |
 | Under-collateralized mint | Per-market backing ledger + mint-solvency guard; CTF transfer as a hard backstop; validated by a collateral-conservation invariant campaign (§6) |
-| Double-spend in fill→settle window | Collateral/shares reserved at match (user-global, cross-market pending guards)ailure |
+| Double-spend in fill→settle window | Collateral/shares reserved at match (user-global, cross-market pending guards); released on settlement failure |
 | Signature forgery / replay | EIP-712 domain-bound signing, single-use order nonces, EIP-1271 `STATICCALL` verification |
-| Resolution manipulation | Separated `RESOLVER` role; `finalizeCondition` is gated on-chain by a per-market challengt` + `challengePeriod`) so a reported payout cannot be redeemed until the window elapses. No on-chain dispute oracle(resolution is operator/`RESOLVER`-driven). **On the testnet beta the challenge period is set to 0 (instant finalize); production sets it non-zero (§7).** |
-| Premature / mis-sized redeem | `redeem` is gated on a `finalized` flag (set only after the challenge window); a payny single condition's payout |
+| Resolution manipulation | Separated `RESOLVER` role; `finalizeCondition` is gated on-chain by a per-market challenge period (`marketResolvedAt` + `challengePeriod`) so a reported payout cannot be redeemed until the window elapses. No on-chain dispute oracle (resolution is operator/`RESOLVER`-driven). **On the testnet beta the challenge period is set to 0 (instant finalize); production sets it non-zero (§7).** |
+| Premature / mis-sized redeem | `redeem` is gated on a `finalized` flag (set only after the challenge window); a payout-numerator cap bounds any single condition's payout |
 | Zero-collateral / dust fills | Fills whose `price × quantity` rounds below 1 gUSDC unit are rejected on-chain, so a settle can't mint value against zero backing |
-| Doomed / griefing settlements | Pre-broadcast simulation (a reverting settle never mines); operator submit is idempent RPC rate-limits (429) are absorbed with backoff-retry so they never surface as a settle failure |
+| Doomed / griefing settlements | Pre-broadcast simulation (a reverting settle never mines); operator submit is idempotent + reconciled; transient RPC rate-limits (429) are absorbed with backoff-retry so they never surface as a settle failure |
 | Incident response | Operator-triggered maintenance pause on the engine halts mint/transfer paths without touching fund-recovery, for a controlled stop during an incident |
 
 The three protocol contracts (Exchange, Registry, BinaryEngine) are source-verified on the

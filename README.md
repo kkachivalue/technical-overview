@@ -166,8 +166,6 @@ it is replaced by canonical USDC on mainnet.
 
 ## 7. What's next
 
-Not a dated roadmap — the work we plan to build, ordered by what unblocks real-money use first.
-
 - **Mainnet hardening** — external real USDC (not the mock gUSDC), `DEFAULT_ADMIN` moved to
   a multisig, treasury fee recipient, a non-zero challenge period, verified role revokes.
   (Challenge-period finalize, payout cap, `finalized`-gated redeem, zero-fill rejection and

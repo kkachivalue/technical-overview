@@ -177,27 +177,7 @@ is replaced by canonical USDC on mainnet (§8).
 
 ---
 
-## 7. Why GIWA
-
-- **Self-custody UX on a fast L2.** The whole point of the hybrid design — sign off-chain,
-  settle on-chain — needs cheap, quick finality. GIWA's OP-Stack L2 gives low fees and fast
-  confirmation, so a signed order settles without the trader ever leaving self-custody.
-- **Canonical bridge for real collateral.** On mainnet, collateral is real USDC brought onto
-  the L2 through GIWA's canonical bridge, replacing the testnet mock (§8).
-- **Smart-wallet ready.** The Exchange already verifies EIP-1271 signatures, so GIWA-native
-  smart wallets can trade on the same signed-order path as EOAs, no separate flow.
-- **GIWA Wallet & faster confirmation (planned).** GIWA Wallet integration is
-  integration-ready via the EIP-1271 path and planned to land once the wallet ships; we also
-  plan to lean on GIWA's fast block confirmation (Flashblocks) to tighten the sign→settle loop,
-  and a paymaster path (§8) to remove first-trade gas friction. These are planned, not yet live.
-- **User flow.** discover → sign → settle → redeem → return: a trader finds a market, signs an
-  order, sees it settle on-chain, redeems winnings after finalize, and returns to browse.
-
-GIWA connect / wallet / Flashblocks docs: https://docs.giwa.io
-
----
-
-## 8. What's next
+## 7. What's next
 
 - **Mainnet hardening** — external real USDC (not the mock gUSDC), `DEFAULT_ADMIN` moved to
   a multisig with least-privilege role separation, treasury fee recipient, a non-zero

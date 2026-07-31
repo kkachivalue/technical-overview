@@ -33,7 +33,7 @@ matching, on-chain settlement, a mock gUSDC collateral token, and finalize gated
 admin-configurable delay currently set to zero (instant finalize). Lifecycle timing is
 role-controlled (timestamps are on-chain metadata, not yet time-enforced), and the deployer
 key still holds `DEFAULT_ADMIN`. Production wires canonical USDC, a multisig `DEFAULT_ADMIN`
-with least-privilege roles, on-chain-enforced windows, and a non-zero finalization delay (§8).
+with least-privilege roles, on-chain-enforced windows, and a non-zero finalization delay (§7).
 
 ---
 
@@ -81,7 +81,7 @@ fill→settle window.
   and revoked from the deployer; settlement runs from a separate operator EOA. On the current
   testnet the deployer EOA still holds `DEFAULT_ADMIN` on all contracts and re-holds operator
   authority to run beta market operations, so role assignments are reversible by that single
-  key. Production moves `DEFAULT_ADMIN` to a multisig and applies least-privilege separation (§8).
+  key. Production moves `DEFAULT_ADMIN` to a multisig and applies least-privilege separation (§7).
 - **Collateral conservation.** Per-market `backing[conditionId]` with a mint-solvency guard;
   the split path credits the *actually received* collateral amount; CTF transfer semantics as a
   hard backstop. Fuzz-invariant tested (§6).
@@ -139,17 +139,17 @@ Threats and on-chain / protocol mitigations:
 | Under-collateralized mint | Per-market backing ledger + mint-solvency guard; split path credits actually-received collateral; CTF transfer as a hard backstop; validated by a collateral-conservation invariant campaign (§6) |
 | Double-spend in fill→settle window | Collateral/shares reserved at match (user-global, cross-market pending guards); released on settlement failure |
 | Signature forgery / replay | EIP-712 domain-bound signing; cumulative fill accounting per order hash; on-chain nonce cancellation for bulk invalidation; EIP-1271 `STATICCALL` verification |
-| Resolution manipulation | Separated `RESOLVER` role; `finalizeMarket` is gated by a global, admin-configurable finalization delay measured from `marketResolvedAt`. This is a time delay, **not** an on-chain dispute mechanism — there is no dispute/correction function, and the admin can change the global delay. On the testnet the delay is 0 (instant finalize); production sets it non-zero and moves admin to a multisig (§8) |
+| Resolution manipulation | Separated `RESOLVER` role; `finalizeMarket` is gated by a global, admin-configurable finalization delay measured from `marketResolvedAt`. This is a time delay, **not** an on-chain dispute mechanism — there is no dispute/correction function, and the admin can change the global delay. On the testnet the delay is 0 (instant finalize); production sets it non-zero and moves admin to a multisig (§7) |
 | Premature / mis-sized redeem | `redeem` is gated on a `finalized` flag (set only after the delay elapses); a payout-numerator cap bounds any single condition's payout |
 | Zero-collateral / dust fills | Fills whose `price × quantity` rounds below 1 gUSDC unit are rejected on-chain, so a settle can't mint value against zero backing |
-| Lifecycle timing | Trading/resolution timestamps are recorded on-chain as metadata; state transitions are role-controlled and not yet time-enforced on-chain. Production hardening enforces the windows on-chain (§8) |
+| Lifecycle timing | Trading/resolution timestamps are recorded on-chain as metadata; state transitions are role-controlled and not yet time-enforced on-chain. Production hardening enforces the windows on-chain (§7) |
 | Doomed / griefing settlements | Pre-broadcast simulation (a reverting settle never mines); operator submit is idempotent + reconciled; transient RPC rate-limits (429) are absorbed with backoff-retry |
 | Incident response | Operator-triggered maintenance pause on the engine halts mint/transfer paths without touching fund-recovery, for a controlled stop during an incident |
 
 The three protocol contracts (Exchange, Registry, BinaryEngine) are source-verified on the
 GIWA Sepolia explorer. Collateral on testnet is a mock gUSDC (open mint, gated to the testnet
 chain id) — a stand-in, not a protocol contract, and intentionally left unverified because it
-is replaced by canonical USDC on mainnet (§8).
+is replaced by canonical USDC on mainnet (§7).
 
 ---
 
